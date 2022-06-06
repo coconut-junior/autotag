@@ -1,0 +1,54 @@
+<html>
+	<head>
+		<title>Jimmy's Alt Tag Automator</title>
+	</head>
+	<body>
+
+		<div style = "display:flex;">
+			<p>Enter code here:</p>
+			<textarea id = "code_box" style = "height:200px;width:480px;"></textarea>
+			<p>Preview:</p>
+			<iframe id = "preview" height = "640" width = "480"></iframe>
+			<p>Copy new code:</p>
+			<textarea id = "copy_box" style = "height:200px;width:480px;"></textarea>
+			<button onclick = "rl()">AUTOTAG</button>
+		</div>
+
+		<script>
+			var dummyElement = document.getElementById("preview");
+
+			function rl() {
+				dummyElement.src = "";
+				var new_code = "";
+				var alt_tags = ["Ollie's Bargain Outlet!","two","three", "four"];
+				var images = [];
+				var codeBox = document.getElementById("code_box");
+				var tagIndex = 0;
+
+				//these are our images
+				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
+
+				for (var i = 0;i < elements.length;++i) {
+					try {
+						//check if item image
+
+						if (elements[i].width == "320") {
+							elements[i].setAttribute("alt", alt_tags[tagIndex]);
+							console.log(elements[tagIndex].alt);
+							++tagIndex;
+						}
+					}
+
+					catch {console.log("incorrect number of tags")}
+				}
+
+				console.log("reloading...");
+
+				//write changes to iframe
+				dummyElement.contentWindow.document.write(document.getElementById("code_box").value);
+				document.getElementById("copy_box").value = dummyElement.contentWindow.document.body.innerHTML;
+			}
+		</script>
+
+	</body>
+</html>
