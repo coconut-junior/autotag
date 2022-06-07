@@ -6,17 +6,21 @@
 			  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
 			  crossorigin="anonymous">
 			</script>
+			<script src = "https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
+
+
 	</head>
 	<body>
 
 		<h1>Jimmy's Tag Automator</h1>
 		<div style = "display:flex;">
 			<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
-			<input type="file" id = "indd_browser" onchange="previewFile()" value = "Select INDD">
+			<input type="file" id = "xls_browser" onchange="openSheet()" value = "Select INDD">
 			<p>Preview:</p>
 			<iframe id = "preview" height = "640" width = "480"></iframe>
 			<p>Copy new code:</p>
 			<textarea id = "copy_box" style = "height:200px;width:480px;"></textarea>
+			<textarea id = "tagBox"></textarea>
 			<button onclick = "rl()">AUTOTAG</button>
 
 		</div>
@@ -29,18 +33,25 @@
 		var prices = []; //maybe pull prices and other info from item lists xls?
 		var item_count = 0;
 			//open file
-			function previewFile() {
-			  const [file] = document.getElementById("indd_browser").files;
+
+
+			function openSheet() {
+				const [file] = document.getElementById("xls_browser").files;
 			  const reader = new FileReader();
+				var data = "";
 
 			  reader.addEventListener("load", () => {
 			    // this will then display a text file
-			    file_text = reader.result;
-					alert(file_text);
+			    data = reader.result;
+					var options = { type: 'array' };
+    			var workbook = XLSX.read(data, options);
+					var sheetName = workbook.SheetNames
+    			var sheet = workbook.Sheets[sheetName]
+					console.log(sheetName);
 			  }, false);
 
 			  if (file) {
-			    reader.readAsText(file);
+			    reader.readAsArrayBuffer(file);
 			  }
 			}
 
@@ -66,6 +77,8 @@
 				var new_code = "";
 				var images = [];
 				var tagIndex = 0;
+				var tagBox = document.getElementById("tagBox");
+				tagBox.value = "";
 
 				//these are all images
 				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
@@ -76,8 +89,11 @@
 						if (elements[i].width == "320" || elements[i].width == "640") {
 							elements[i].setAttribute("alt", alt_tags[tagIndex]);
 							var path = elements[i].src.toString().split("/");
-							var item_name = path[path.length-1].replace(".png","").replace("_"," ");
+							var item_name = path[path.length-1].replace(".png","").replace("_"," ").replace("320x220","").replace("640x100","").replace("640x200","");
+							//	+ ": OUR PRICE " + ", theirs " + ".";
+							item_name = item_name.charAt(0).toUpperCase() + item_name.slice(1);
 							item_names.push(item_name);
+							tagBox.value += item_name + "\n";
 							++tagIndex;
 							++item_count;
 						}
