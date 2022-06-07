@@ -11,3 +11,7 @@ h1 {
   width: auto;
   text-align: center;
 }
+
+#tagList {
+  width: 640px;
+}

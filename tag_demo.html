@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset=UTF-8>
-		<title>Jimmy's Alt Tag Automator</title>
+		<title>Jimmy's Alt Tag Automator Beta 1.0</title>
 		<script
 			  src="https://code.jquery.com/jquery-3.6.0.js"
 			  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
@@ -10,11 +10,10 @@
 			</script>
 			<script src = "https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
 			<link rel = "stylesheet" href = "stylesheet.css">
-
 	</head>
 	<body>
 
-		<h1>Jimmy's Tag Automator</h1>
+		<h1>Jimmy's Tag Automator Beta 1.0</h1>
 		<div style = "display:flex;">
 			<div class = "file-selectors">
 				<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
@@ -22,21 +21,24 @@
 			</div>
 			<iframe id = "preview" height = "640" width = "480"></iframe>
 			<textarea id = "tagBox"></textarea>
-			<button onclick = "rl()">TAG IT!</button>
+			<button onclick = "autotag()">TAG IT!</button>
+			<textarea id = "tagList"></textarea>
 
 		</div>
 
 		<script>
-		var file_text = "";
-		var html_text = "";
-		var alt_tags = ["one","two","three", "four","five"];
-		var item_names = [];
-		var matched_items = [];
-		var prices = []; //maybe pull prices and other info from item lists xls?
-		var workbook;
-		var sheetName;
-		var sheet;
-			//open file
+
+			//INSTRUCTIONS: export xls from Badger Feature View
+			var file_text = "";
+			var html_text = "";
+			var alt_tags = [];
+			var item_names = [];
+			var matched_items = [];
+			var prices = []; //maybe pull prices and other info from item lists xls?
+			var workbook;
+			var sheetName;
+			var sheet;
+				//open file
 
 
 			function openSheet() {
@@ -50,14 +52,10 @@
 					var options = { type: 'array' };
     			workbook = XLSX.read(data, options);
 					sheetName = workbook.SheetNames;
-    			sheet = workbook.Sheets["itemViewTable"];
+    			sheet = workbook.Sheets["featureViewTable"];
 
-					if(sheetName[0] == "featureViewTable" || sheetName[0] == "itemViewTable") {
-
-
-					}
-					else {
-						alert("Ensure you are using a spreadsheet exported from Badger.")
+					if(sheetName[0] != "featureViewTable") {
+						alert("Ensure you are using a feature view table exported from Badger.")
 					}
 			  }, false);
 
@@ -83,7 +81,7 @@
 
 			var dummyElement = document.getElementById("preview");
 
-			function rl() {
+			function autotag() {
 				dummyElement.src = "";
 				var new_code = "";
 				var images = [];
@@ -101,33 +99,36 @@
 
 				//search excel sheet for matches
 				for (let rowNum = range.s.r + 2; rowNum <= range.e.r; rowNum++) {
-						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 4})];
-						var fname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 1})]["v"];
-						var op = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
-						var tp = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
-						iname = iname["v"];
+						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 3})];
+						var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
+						iname = iname["v"].replace(" (logo) "," ");
 
 						//match by size
-						for (var i = 0;i<item_names.length;++i) {
+						for (var i = 0;i<item_names.length;++i)  {
 							if (iname.includes("in ") || iname.includes("\"")) {
-								var complete_tag = iname + ": OUR PRICE " + op + ", theirs " + tp + ".";
+								var complete_tag = iname + ": " + prices + ".";
 								matched_items.push(complete_tag);
-								console.log(complete_tag);
 							}
 							//match by containing name
 							else if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
 								//build alt tag
-								var complete_tag = iname + ": OUR PRICE " + op + ", theirs " + tp + ".";
+								var complete_tag = iname + ": " + prices + ".";
 								matched_items.push(complete_tag);
-								console.log(complete_tag);
-							}
-							else if (fname.toLowerCase().includes(item_names[i].toLowerCase())) {
-								//build alt tag
-								var complete_tag = fname + ": OUR PRICE " + op + ", theirs " + tp + ".";
-								matched_items.push(complete_tag);
-								console.log(complete_tag);
 							}
 						}
+				}
+
+				//list out matched items, remove duplicates
+
+				for (var i = 0;i < matched_items.length;++i) {
+					console.log(matched_items[i]);
+
+					if (last_item != matched_items[i]) {
+						var prettyTag = matched_items[i].replace("rice:", "rice: $") + "\n";
+						document.getElementById("tagList").value += prettyTag;
+
+					}
+					last_item = matched_items[i];
 				}
 
 				//insert alt tags
