@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset=UTF-8>
-		<title>Jimmy's Alt Tag Automator Beta 1.0</title>
+		<title>Jimmy's Alt Tag Automator Beta 1.1</title>
 		<script
 			  src="https://code.jquery.com/jquery-3.6.0.js"
 			  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
@@ -13,11 +13,18 @@
 	</head>
 	<body>
 
-		<h1>Jimmy's Tag Automator Beta 1.0</h1>
+		<h1>Jimmy's Tag Automator Beta 1.1</h1>
 		<div class = "wrapper">
+
 			<div class = "file-selectors">
-				<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
-				<input type="file" id = "xls_browser" onchange="openSheet()" value = "Select INDD">
+				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+			  	<p>Drop HTML here ...</p>
+				</div>
+
+				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+			  	<p>Drop XLS here ...</p>
+				</div>
+				
 			</div>
 			<iframe id = "preview" height = "320" width = "480"></iframe>
 			<textarea id = "tagBox"></textarea>
@@ -26,6 +33,49 @@
 			<textarea id = "tagList"></textarea>
 
 		</div>
+
+		<script>
+		function dropHandler(ev) {
+			console.log('File(s) dropped');
+
+			// Prevent default behavior (Prevent file from being opened)
+			ev.preventDefault();
+
+			if (ev.dataTransfer.items) {
+				// Use DataTransferItemList interface to access the file(s)
+				for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+					// If dropped items aren't files, reject them
+					if (ev.dataTransfer.items[i].kind === 'file') {
+						var file = ev.dataTransfer.items[i].getAsFile();
+						console.log('... file[' + i + '].name = ' + file.name);
+						var files = ev.dataTransfer.files;
+
+						if (file.name.includes(".html")) {
+							openHTML(file);
+						}
+						else if (file.name.includes(".xls")) {
+							openSheet(file);
+						}
+
+					}
+				}
+			} else {
+				// Use DataTransfer interface to access the file(s)
+					for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+
+					}
+				}
+			}
+
+			function dragOverHandler(ev) {
+			  console.log('File(s) in drop zone');
+
+			  // Prevent default behavior (Prevent file from being opened)
+			  ev.preventDefault();
+			}
+
+
+		</script>
 
 		<script>
 
@@ -53,8 +103,8 @@
 			}
 
 
-			function openSheet() {
-				const [file] = document.getElementById("xls_browser").files;
+			function openSheet(file) {
+				//const [file] = document.getElementById("xls_browser").files;
 			  const reader = new FileReader();
 				var data = "";
 
@@ -77,8 +127,9 @@
 			  }
 			}
 
-			function openHTML() {
-			  const [file] = document.getElementById("html_browser").files;
+			function openHTML(file) {
+				console.log("opening html");
+			  //const [file] = document.getElementById("html_browser").files;
 			  const reader = new FileReader();
 
 			  reader.addEventListener("load", () => {
@@ -161,17 +212,12 @@
 				}
 
 				//add matched items to textarea for copying
-
 				for (var i = 0;i < matched_items.length;++i) {
-					console.log(matched_items[i]);
 						var prettyTag = matched_items[i];
 						document.getElementById("tagList").value += prettyTag + "\n";
 				}
 
-				//these are ordered, matched items are unordered
-				console.log(item_names);
-
-				//insert alt tags
+				//read image names
 				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
 				for (var i = 0;i < elements.length;++i) {
 
@@ -195,8 +241,21 @@
 
 				}
 
+				//these are ordered, matched items are unordered
+				console.log(item_names);
+
 				//save new code
+				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
+				for (var i = 0;i < elements.length;++i) {
+
+						//check if item image
+						if (elements[i].width == "320" || elements[i].width == "640") {
+							elements[i].setAttribute("alt", item_names[i]);
+						}
+				}
+
 				new_code = dummyElement.contentWindow.document.body.innerHTML;
+				console.log(new_code);
 			}
 		</script>
 

@@ -20,12 +20,20 @@ h1 {
 }
 
 #tagBox {
-  display: none;
+
 }
 
 #preview {
   display: none;
 }
+
+#drop_zone {
+  border: 2px dotted gray;
+  width:  200px;
+  height: 100px;
+  width:50%;
+}
+
 
 textarea {
   white-space: pre-wrap;
@@ -34,7 +42,7 @@ textarea {
 button {
   height:64px;
   width:auto;
-  
+
 }
 
 
