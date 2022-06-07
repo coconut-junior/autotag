@@ -15,3 +15,7 @@ h1 {
 #tagList {
   width: 640px;
 }
+
+textarea {
+  white-space: pre-wrap;
+}

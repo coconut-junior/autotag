@@ -96,6 +96,7 @@
 
 
 				var range = XLSX.utils.decode_range(sheet['!ref']);
+				matched_items = [];
 
 				//search excel sheet for matches
 				for (let rowNum = range.s.r + 2; rowNum <= range.e.r; rowNum++) {
@@ -103,33 +104,37 @@
 						var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
 						iname = iname["v"].replace(" (logo) "," ");
 
-						//match by size
+
 						for (var i = 0;i<item_names.length;++i)  {
-							if (iname.includes("in ") || iname.includes("\"")) {
-								var complete_tag = iname + ": " + prices + ".";
-								matched_items.push(complete_tag);
-							}
-							//match by containing name
-							else if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
-								//build alt tag
-								var complete_tag = iname + ": " + prices + ".";
-								matched_items.push(complete_tag);
+							if (last_item != iname) {
+								//match by size
+								if (iname.includes("in ") || iname.includes("\"")) {
+									var complete_tag = iname + ": " + prices + ".";
+									matched_items.push(complete_tag);
+									last_item = iname;
+								}
+								//match by containing name
+								else if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
+									//build alt tag
+									var complete_tag = iname + ": " + prices + ".";
+									item_names[i] = complete_tag;
+									matched_items.push(complete_tag);
+									last_item = iname;
+								}
 							}
 						}
+
 				}
 
 				//list out matched items, remove duplicates
 
 				for (var i = 0;i < matched_items.length;++i) {
 					console.log(matched_items[i]);
-
-					if (last_item != matched_items[i]) {
-						var prettyTag = matched_items[i].replace("rice:", "rice: $") + "\n";
-						document.getElementById("tagList").value += prettyTag;
-
-					}
-					last_item = matched_items[i];
+						var prettyTag = matched_items[i].replaceAll("rice:","rice: $");
+						document.getElementById("tagList").value += prettyTag + "\n";
 				}
+
+				console.log(item_names);
 
 				//insert alt tags
 				for (var i = 0;i < elements.length;++i) {
