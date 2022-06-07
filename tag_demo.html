@@ -9,10 +9,10 @@
 	</head>
 	<body>
 
+		<h1>Jimmy's Tag Automator</h1>
 		<div style = "display:flex;">
-			<p>Enter code here:</p>
-			<textarea id = "code_box" style = "height:200px;width:480px;"></textarea>
-			<input type="file" onchange="previewFile()" />
+			<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
+			<input type="file" id = "indd_browser" onchange="previewFile()" value = "Select INDD">
 			<p>Preview:</p>
 			<iframe id = "preview" height = "640" width = "480"></iframe>
 			<p>Copy new code:</p>
@@ -22,17 +22,36 @@
 		</div>
 
 		<script>
-		var text, parser, xmlDoc;
+		var file_text = "";
+		var html_text = "";
+		var alt_tags = ["one","two","three", "four","five"];
+		var item_names = [];
+		var prices = []; //maybe pull prices and other info from item lists xls?
+		var item_count = 0;
 			//open file
 			function previewFile() {
-			  const content = document.querySelector('.content');
-			  const [file] = document.querySelector('input[type=file]').files;
+			  const [file] = document.getElementById("indd_browser").files;
 			  const reader = new FileReader();
 
 			  reader.addEventListener("load", () => {
 			    // this will then display a text file
-			    text = reader.result;
-					alert(text);
+			    file_text = reader.result;
+					alert(file_text);
+			  }, false);
+
+			  if (file) {
+			    reader.readAsText(file);
+			  }
+			}
+
+			function openHTML() {
+			  const [file] = document.getElementById("html_browser").files;
+			  const reader = new FileReader();
+
+			  reader.addEventListener("load", () => {
+			    // this will then display a text file
+			    html_text = reader.result;
+					dummyElement.contentWindow.document.write(html_text);
 			  }, false);
 
 			  if (file) {
@@ -45,12 +64,10 @@
 			function rl() {
 				dummyElement.src = "";
 				var new_code = "";
-				var alt_tags = ["Ollie's Bargain Outlet!","two","three", "four"];
 				var images = [];
-				var codeBox = document.getElementById("code_box");
 				var tagIndex = 0;
 
-				//these are our images
+				//these are all images
 				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
 
 				for (var i = 0;i < elements.length;++i) {
@@ -58,18 +75,18 @@
 						//check if item image
 						if (elements[i].width == "320" || elements[i].width == "640") {
 							elements[i].setAttribute("alt", alt_tags[tagIndex]);
-							console.log(alt_tags[i]);
+							var path = elements[i].src.toString().split("/");
+							var item_name = path[path.length-1].replace(".png","").replace("_"," ");
+							item_names.push(item_name);
 							++tagIndex;
+							++item_count;
 						}
 					}
 
 					catch {console.log("incorrect number of tags")}
 				}
 
-				console.log("reloading...");
-
 				//write changes to iframe
-				dummyElement.contentWindow.document.write(document.getElementById("code_box").value);
 				document.getElementById("copy_box").value = dummyElement.contentWindow.document.body.innerHTML;
 			}
 		</script>
