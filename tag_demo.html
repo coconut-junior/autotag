@@ -30,8 +30,11 @@
 		var html_text = "";
 		var alt_tags = ["one","two","three", "four","five"];
 		var item_names = [];
+		var matched_items = [];
 		var prices = []; //maybe pull prices and other info from item lists xls?
-		var item_count = 0;
+		var workbook;
+		var sheetName;
+		var sheet;
 			//open file
 
 
@@ -44,10 +47,17 @@
 			    // this will then display a text file
 			    data = reader.result;
 					var options = { type: 'array' };
-    			var workbook = XLSX.read(data, options);
-					var sheetName = workbook.SheetNames
-    			var sheet = workbook.Sheets[sheetName]
-					console.log(sheetName);
+    			workbook = XLSX.read(data, options);
+					sheetName = workbook.SheetNames;
+    			sheet = workbook.Sheets["itemViewTable"];
+
+					if(sheetName[0] == "featureViewTable" || sheetName[0] == "itemViewTable") {
+
+
+					}
+					else {
+						alert("Ensure you are using a spreadsheet exported from Badger.")
+					}
 			  }, false);
 
 			  if (file) {
@@ -78,13 +88,14 @@
 				var images = [];
 				var tagIndex = 0;
 				var tagBox = document.getElementById("tagBox");
+				var last_item = "";
 				tagBox.value = "";
 
 				//these are all images
 				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
 
 				for (var i = 0;i < elements.length;++i) {
-					try {
+
 						//check if item image
 						if (elements[i].width == "320" || elements[i].width == "640") {
 							elements[i].setAttribute("alt", alt_tags[tagIndex]);
@@ -92,14 +103,37 @@
 							var item_name = path[path.length-1].replace(".png","").replace("_"," ").replace("320x220","").replace("640x100","").replace("640x200","");
 							//	+ ": OUR PRICE " + ", theirs " + ".";
 							item_name = item_name.charAt(0).toUpperCase() + item_name.slice(1);
-							item_names.push(item_name);
-							tagBox.value += item_name + "\n";
-							++tagIndex;
-							++item_count;
-						}
-					}
 
-					catch {console.log("incorrect number of tags")}
+							//remove duplicates
+							if (item_name != last_item && !item_name.includes("full")) {
+								item_names.push(item_name);
+								tagBox.value += item_name + "\n";
+							}
+
+							last_item = item_name;
+							++tagIndex;
+						}
+
+				}
+
+				var range = XLSX.utils.decode_range(sheet['!ref']);
+
+				//search excel sheet
+				for (let rowNum = range.s.r + 2; rowNum <= range.e.r; rowNum++) {
+						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 4})];
+						var op = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
+						var tp = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
+						iname = iname["v"];
+						//console.log(iname);
+
+						for (var i = 0;i<item_names.length;++i) {
+							if (iname.includes("in ") || iname.includes("\"")) {
+
+								var complete_tag = iname + ": OUR PRICE " + op + ", theirs " + tp + ".";
+								matched_items.push(complete_tag);
+								console.log(complete_tag);
+							}
+						}
 				}
 
 				//write changes to iframe
