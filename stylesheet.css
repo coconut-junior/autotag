@@ -4,7 +4,9 @@
 }
 
 .file-selectors {
+  width: 100vw;
   border:1px solid black;
+  display: flex;
 }
 
 h1 {
@@ -13,9 +15,29 @@ h1 {
 }
 
 #tagList {
-  width: 640px;
+  width: 100vw;
+  height: 200px;
+}
+
+#tagBox {
+  display: none;
+}
+
+#preview {
+  display: none;
 }
 
 textarea {
   white-space: pre-wrap;
+}
+
+button {
+  height:64px;
+  width:auto;
+  
+}
+
+
+.wrapper {
+  display:flex;flex-wrap:wrap;
 }

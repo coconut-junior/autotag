@@ -14,14 +14,15 @@
 	<body>
 
 		<h1>Jimmy's Tag Automator Beta 1.0</h1>
-		<div style = "display:flex;">
+		<div class = "wrapper">
 			<div class = "file-selectors">
 				<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
 				<input type="file" id = "xls_browser" onchange="openSheet()" value = "Select INDD">
 			</div>
-			<iframe id = "preview" height = "640" width = "480"></iframe>
+			<iframe id = "preview" height = "320" width = "480"></iframe>
 			<textarea id = "tagBox"></textarea>
-			<button onclick = "autotag()">TAG IT!</button>
+			<button onclick = "tagIt()" id = "tagButton" disabled>TAG IT!</button>
+			<button onclick = "download()" id = "tagButton">Download</button>
 			<textarea id = "tagList"></textarea>
 
 		</div>
@@ -29,6 +30,12 @@
 		<script>
 
 			//INSTRUCTIONS: export xls from Badger Feature View
+			//Select html and xlsx
+			//click 'tag it!'
+			//download new html or copy tags over
+
+			//compatibility: tested and working on safari and firefox
+
 			var file_text = "";
 			var html_text = "";
 			var alt_tags = [];
@@ -39,6 +46,11 @@
 			var sheetName;
 			var sheet;
 				//open file
+
+			function tagIt() {
+				autotag();
+				autotag();
+			}
 
 
 			function openSheet() {
@@ -61,6 +73,7 @@
 
 			  if (file) {
 			    reader.readAsArrayBuffer(file);
+					document.getElementById("tagButton").disabled = false;
 			  }
 			}
 
@@ -90,11 +103,6 @@
 				var last_item = "";
 				tagBox.value = "";
 
-				//these are all images
-				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
-
-
-
 				var range = XLSX.utils.decode_range(sheet['!ref']);
 				matched_items = [];
 
@@ -102,6 +110,14 @@
 				for (let rowNum = range.s.r + 1; rowNum <= range.e.r; rowNum++) {
 						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 3})];
 						var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
+						var special_notes = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
+
+						//fix prices if in special notes
+						if (prices == "" && special_notes.toLowerCase().includes("price")) {
+							console.log("special notes located");
+							prices = special_notes;
+						}
+
 						iname = iname["v"].replace(" (logo) "," ");
 						var complete_tag = iname + ": " + prices + ".";
 						complete_tag = complete_tag.replaceAll("rice:","rice: $");
@@ -115,18 +131,36 @@
 									last_item = iname;
 								}
 
+								//combined words? ex: water color, watercolor
+								if (iname.toLowerCase().includes(item_names[i].toLowerCase().replaceAll(" ","")) ||
+							item_names[i].toLowerCase().includes(iname.toLowerCase().replaceAll(" ",""))) {
+									item_names[i] = complete_tag;
+									matched_items.push(complete_tag);
+									last_item = iname;
+								}
+
 								if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
 									//match by containing name
 									item_names[i] = complete_tag;
 									matched_items.push(complete_tag);
 									last_item = iname;
 								}
+
+								//match by last word in description
+								var split_name = iname.toLowerCase().split(" ");
+								if (item_names[i].includes(split_name[split_name.length-1]) && last_item!=iname) {
+
+									item_names[i] = complete_tag;
+									matched_items.push(complete_tag);
+									last_item = iname;
+									console.log("split name located");
+								}
 							}
 						}
 
 				}
 
-				//list out matched items, remove duplicates
+				//add matched items to textarea for copying
 
 				for (var i = 0;i < matched_items.length;++i) {
 					console.log(matched_items[i]);
@@ -134,16 +168,18 @@
 						document.getElementById("tagList").value += prettyTag + "\n";
 				}
 
+				//these are ordered, matched items are unordered
 				console.log(item_names);
 
 				//insert alt tags
+				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
 				for (var i = 0;i < elements.length;++i) {
 
 						//check if item image
 						if (elements[i].width == "320" || elements[i].width == "640") {
 							elements[i].setAttribute("alt", alt_tags[tagIndex]);
 							var path = elements[i].src.toString().split("/");
-							var item_name = path[path.length-1].replace(".png","").replace("_"," ").replace("320x220","").replace("640x100","").replace("640x200","").trim();
+							var item_name = path[path.length-1].replace(".png","").replaceAll("_"," ").replace("320x220","").replace("640x100","").replace("640x200","").trim();
 							//	+ ": OUR PRICE " + ", theirs " + ".";
 							item_name = item_name.charAt(0).toUpperCase() + item_name.slice(1);
 
