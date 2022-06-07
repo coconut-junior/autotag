@@ -1,0 +1,13 @@
+* {
+  font-family: "Arial";
+  margin:20px;
+}
+
+.file-selectors {
+  border:1px solid black;
+}
+
+h1 {
+  width: auto;
+  text-align: center;
+}

@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<meta charset=UTF-8>
 		<title>Jimmy's Alt Tag Automator</title>
 		<script
 			  src="https://code.jquery.com/jquery-3.6.0.js"
@@ -7,21 +9,20 @@
 			  crossorigin="anonymous">
 			</script>
 			<script src = "https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
-
+			<link rel = "stylesheet" href = "stylesheet.css">
 
 	</head>
 	<body>
 
 		<h1>Jimmy's Tag Automator</h1>
 		<div style = "display:flex;">
-			<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
-			<input type="file" id = "xls_browser" onchange="openSheet()" value = "Select INDD">
-			<p>Preview:</p>
+			<div class = "file-selectors">
+				<input type="file" id = "html_browser" onchange="openHTML()" value = "Select HTML">
+				<input type="file" id = "xls_browser" onchange="openSheet()" value = "Select INDD">
+			</div>
 			<iframe id = "preview" height = "640" width = "480"></iframe>
-			<p>Copy new code:</p>
-			<textarea id = "copy_box" style = "height:200px;width:480px;"></textarea>
 			<textarea id = "tagBox"></textarea>
-			<button onclick = "rl()">AUTOTAG</button>
+			<button onclick = "rl()">TAG IT!</button>
 
 		</div>
 
@@ -94,6 +95,42 @@
 				//these are all images
 				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
 
+
+
+				var range = XLSX.utils.decode_range(sheet['!ref']);
+
+				//search excel sheet for matches
+				for (let rowNum = range.s.r + 2; rowNum <= range.e.r; rowNum++) {
+						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 4})];
+						var fname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 1})]["v"];
+						var op = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
+						var tp = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
+						iname = iname["v"];
+
+						//match by size
+						for (var i = 0;i<item_names.length;++i) {
+							if (iname.includes("in ") || iname.includes("\"")) {
+								var complete_tag = iname + ": OUR PRICE " + op + ", theirs " + tp + ".";
+								matched_items.push(complete_tag);
+								console.log(complete_tag);
+							}
+							//match by containing name
+							else if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
+								//build alt tag
+								var complete_tag = iname + ": OUR PRICE " + op + ", theirs " + tp + ".";
+								matched_items.push(complete_tag);
+								console.log(complete_tag);
+							}
+							else if (fname.toLowerCase().includes(item_names[i].toLowerCase())) {
+								//build alt tag
+								var complete_tag = fname + ": OUR PRICE " + op + ", theirs " + tp + ".";
+								matched_items.push(complete_tag);
+								console.log(complete_tag);
+							}
+						}
+				}
+
+				//insert alt tags
 				for (var i = 0;i < elements.length;++i) {
 
 						//check if item image
@@ -116,28 +153,8 @@
 
 				}
 
-				var range = XLSX.utils.decode_range(sheet['!ref']);
-
-				//search excel sheet
-				for (let rowNum = range.s.r + 2; rowNum <= range.e.r; rowNum++) {
-						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 4})];
-						var op = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
-						var tp = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
-						iname = iname["v"];
-						//console.log(iname);
-
-						for (var i = 0;i<item_names.length;++i) {
-							if (iname.includes("in ") || iname.includes("\"")) {
-
-								var complete_tag = iname + ": OUR PRICE " + op + ", theirs " + tp + ".";
-								matched_items.push(complete_tag);
-								console.log(complete_tag);
-							}
-						}
-				}
-
-				//write changes to iframe
-				document.getElementById("copy_box").value = dummyElement.contentWindow.document.body.innerHTML;
+				//save new code
+				new_code = dummyElement.contentWindow.document.body.innerHTML;
 			}
 		</script>
 
