@@ -13,9 +13,9 @@
 	</head>
 	<body>
 
-		<h1>Jimmy's Tag Automator Beta 1.1</h1>
-		<div class = "wrapper">
 
+		<div class = "wrapper">
+<h1>Jimmy's Tag Automator Beta 1.1</h1>
 			<div class = "file-selectors">
 				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
 			  	<p>Drop HTML here ...</p>
@@ -24,7 +24,7 @@
 				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
 			  	<p>Drop XLS here ...</p>
 				</div>
-				
+
 			</div>
 			<iframe id = "preview" height = "320" width = "480"></iframe>
 			<textarea id = "tagBox"></textarea>
@@ -52,10 +52,13 @@
 
 						if (file.name.includes(".html")) {
 							openHTML(file);
+
 						}
 						else if (file.name.includes(".xls")) {
 							openSheet(file);
 						}
+
+						ev.target.style.backgroundColor = "gray";
 
 					}
 				}

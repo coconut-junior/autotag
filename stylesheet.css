@@ -3,14 +3,24 @@
   margin:20px;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+  height:75vh;
+}
+
 .file-selectors {
   width: 100vw;
   border:1px solid black;
   display: flex;
 }
 
+p {
+  pointer-events: none;
+}
+
 h1 {
-  width: auto;
+  width: 100%;
   text-align: center;
 }
 
@@ -47,5 +57,8 @@ button {
 
 
 .wrapper {
+  height:480px;
+  width:640px;
   display:flex;flex-wrap:wrap;
+  margin:auto;
 }
