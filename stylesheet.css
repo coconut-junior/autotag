@@ -4,19 +4,19 @@
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  height:75vh;
+
 }
 
 .file-selectors {
   width: 100vw;
-  border:1px solid black;
   display: flex;
 }
 
 p {
   pointer-events: none;
+  text-align: center;
+  height:16px;
+  margin: auto;
 }
 
 h1 {
@@ -30,7 +30,7 @@ h1 {
 }
 
 #tagBox {
-
+  display: none;
 }
 
 #preview {
@@ -38,10 +38,13 @@ h1 {
 }
 
 #drop_zone {
+display: flex;
   border: 2px dotted gray;
   width:  200px;
-  height: 100px;
+  height: 200px;
   width:50%;
+  border-radius: 20px;
+  transition: 0.3s;
 }
 
 
@@ -55,10 +58,14 @@ button {
 
 }
 
+#tagButton {
+  width:100%;
+}
+
 
 .wrapper {
   height:480px;
   width:640px;
-  display:flex;flex-wrap:wrap;
-  margin:auto;
+  display: flex;flex-wrap:wrap;
+  margin: auto;
 }

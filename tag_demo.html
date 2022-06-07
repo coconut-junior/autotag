@@ -9,13 +9,14 @@
 			  crossorigin="anonymous">
 			</script>
 			<script src = "https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 			<link rel = "stylesheet" href = "stylesheet.css">
 	</head>
 	<body>
 
 
 		<div class = "wrapper">
-<h1>Jimmy's Tag Automator Beta 1.1</h1>
+			<h1>Jimmy's Tag Automator Beta 1.1</h1>
 			<div class = "file-selectors">
 				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
 			  	<p>Drop HTML here ...</p>
@@ -58,7 +59,7 @@
 							openSheet(file);
 						}
 
-						ev.target.style.backgroundColor = "gray";
+						ev.target.style.backgroundColor = "#b0e8bb";
 
 					}
 				}
@@ -98,6 +99,7 @@
 			var workbook;
 			var sheetName;
 			var sheet;
+			var new_code = "";
 				//open file
 
 			function tagIt() {
@@ -150,7 +152,7 @@
 
 			function autotag() {
 				dummyElement.src = "";
-				var new_code = "";
+
 				var images = [];
 				var tagIndex = 0;
 				var tagBox = document.getElementById("tagBox");
@@ -258,7 +260,11 @@
 				}
 
 				new_code = dummyElement.contentWindow.document.body.innerHTML;
-				console.log(new_code);
+			}
+
+			function download() {
+        var blob = new Blob([new_code], { type: "text/plain;charset=utf-8" });
+        saveAs(blob, "test.html");
 			}
 		</script>
 
