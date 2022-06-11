@@ -11,28 +11,38 @@
 			<script src = "https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 			<link rel = "stylesheet" href = "stylesheet.css">
+
+			<link rel="preconnect" href="https://fonts.googleapis.com">
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+			<link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;600&display=swap" rel="stylesheet">
 	</head>
 	<body>
 
+		<div class = "bodyWrapper">
 
-		<div class = "wrapper">
-			<h1>Jimmy's Tag Automator Beta 1.1</h1>
-			<div class = "file-selectors">
-				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-			  	<p>Drop HTML here ...</p>
+			<h1>Jimmy's Autotagger</h1>
+			<div class = "wrapper">
+
+				<div>
+					<div class = "file-selectors">
+						<div id="drop_zone" style = "margin-right:10px;" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+							<p>Drop HTML here ...</p>
+						</div>
+
+						<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+							<p>Drop XLS here ...</p>
+					</div>
+
+					</div>
+					<iframe id = "preview" height = "320" width = "480"></iframe>
+					<textarea id = "tagBox"></textarea>
+					<div class = "buttonPrimary" onclick = "tagIt()" id = "tagButton" disabled>TAG IT!</div>
+					<div class = "buttonSecondary" onclick = "download()" id = "downloadButton" disabled>Download</div>
+
+
 				</div>
-
-				<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-			  	<p>Drop XLS here ...</p>
-				</div>
-
+				<textarea id = "tagList"></textarea>
 			</div>
-			<iframe id = "preview" height = "320" width = "480"></iframe>
-			<textarea id = "tagBox"></textarea>
-			<button onclick = "tagIt()" id = "tagButton" disabled>TAG IT!</button>
-			<button onclick = "download()" id = "tagButton">Download</button>
-			<textarea id = "tagList"></textarea>
-
 		</div>
 
 		<script>
@@ -53,14 +63,14 @@
 
 						if (file.name.includes(".html")) {
 							openHTML(file);
-
 						}
 						else if (file.name.includes(".xls")) {
 							openSheet(file);
 						}
 
-						ev.target.style.backgroundColor = "#b0e8bb";
-
+						ev.target.style.color = "white";
+						ev.target.style.backgroundColor = "#6B9EFF";
+						ev.target.style.border = "2px solid #6B9EFF";
 					}
 				}
 			} else {
@@ -75,7 +85,8 @@
 			  console.log('File(s) in drop zone');
 
 			  // Prevent default behavior (Prevent file from being opened)
-			  ev.preventDefault();
+				ev.target.style = "background: #ECF9FF;border: 2px dashed #CDCDCD;border-radius: 20px;";
+				ev.preventDefault();
 			}
 
 
@@ -129,6 +140,7 @@
 			  if (file) {
 			    reader.readAsArrayBuffer(file);
 					document.getElementById("tagButton").disabled = false;
+					document.getElementById("downloadButton").disabled = false;
 			  }
 			}
 

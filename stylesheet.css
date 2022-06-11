@@ -1,6 +1,13 @@
 * {
-  font-family: "Arial";
-  margin:20px;
+  font-family: "Asap";
+  font-size: 16px;
+  margin:0;
+  padding:0;
+}
+
+::selection {
+  color:white;
+  background-color:#216BFC;
 }
 
 body {
@@ -8,8 +15,16 @@ body {
 }
 
 .file-selectors {
-  width: 100vw;
+  width: auto;
   display: flex;
+  flex-wrap: wrap;
+  padding:20px;
+  justify-content: space-between;
+  margin:20px;
+
+  background: #FFFFFF;
+  box-shadow: 0px 4px 100px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
 }
 
 p {
@@ -19,14 +34,22 @@ p {
   margin: auto;
 }
 
+.bodyWrapper {
+  height:100vh;width:100vw;display:flex;justify-content: center;align-items: center;flex-direction: column;
+}
+
 h1 {
+  font-size: 28px;
+  color:#216BFC;
   width: 100%;
   text-align: center;
+  margin:40px;
 }
 
 #tagList {
-  width: 100vw;
-  height: 200px;
+  height: 410px;
+  width:330px;
+  margin-top: 20px;
 }
 
 #tagBox {
@@ -38,34 +61,65 @@ h1 {
 }
 
 #drop_zone {
-display: flex;
-  border: 2px dotted gray;
+  display: flex;
+  border: 2px solid #ECF2FF;
   width:  200px;
   height: 200px;
-  width:50%;
   border-radius: 20px;
-  transition: 0.3s;
+  transition: 0.6s;
 }
 
 
 textarea {
   white-space: pre-wrap;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #CDCDCD;
 }
 
-button {
-  height:64px;
-  width:auto;
+.buttonPrimary {
+  display: flex;flex-direction: column;justify-content: center;align-items: center;
+  border-radius: 20px;
+  color:white;
+  height:80px;
+  width:470px;
+  margin: 20px;
+  cursor: pointer;
 
+  background: linear-gradient(180deg, #216CFF 0%, #195CDE 100%);
+  border: 1px solid #CDCDCD;
+  border-radius: 20px;
 }
 
-#tagButton {
-  width:100%;
+.buttonPrimary:active {
+  background: linear-gradient(180deg, #205ACA 0%, #195CDE 100%);
+  border: 1px solid #CDCDCD;
 }
 
+.buttonSecondary {
+  display: flex;flex-direction: column;justify-content: center;align-items: center;
+  border-radius: 20px;
+  color:#216BFC;
+  background-color: blue;
+  height:80px;
+  width:470px;
+  margin: 20px;
+  cursor: pointer;
+
+  background: linear-gradient(180deg, #ECF2FF 0%, #D6DDEA 100%);
+  border: 1px solid #CDCDCD;
+  border-radius: 20px;
+}
+
+.buttonSecondary:active {
+  background: linear-gradient(180deg, #D5DBE6 0%, #D6DDEA 100%);
+  border: 1px solid #CDCDCD;
+}
 
 .wrapper {
-  height:480px;
-  width:640px;
-  display: flex;flex-wrap:wrap;
-  margin: auto;
+  height:auto;
+  width:900px;
+  height:500px;
+  display: flex;
+  flex-wrap: wrap;
 }
