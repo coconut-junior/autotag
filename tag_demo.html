@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset=UTF-8>
-		<title>Jimmy's Alt Tag Automator Beta 1.1</title>
+		<title>Jimmy's Alt Tag Automator Beta 1.2</title>
 		<script
 			  src="https://code.jquery.com/jquery-3.6.0.js"
 			  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
@@ -25,9 +25,6 @@
 
 				<div>
 					<div class = "file-selectors">
-						<div id="drop_zone" style = "margin-right:10px;" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-							<p>Drop HTML here ...</p>
-						</div>
 
 						<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
 							<p>Drop XLS here ...</p>
@@ -36,7 +33,7 @@
 					</div>
 					<iframe id = "preview" height = "320" width = "480"></iframe>
 					<textarea id = "tagBox"></textarea>
-					<div class = "buttonPrimary" onclick = "tagIt()" id = "tagButton" disabled>TAG IT!</div>
+					<div class = "buttonPrimary" onclick = "autotag()" id = "tagButton" disabled>TAG IT!</div>
 					<div class = "buttonSecondary" onclick = "download()" id = "downloadButton" disabled>Download</div>
 
 
@@ -111,12 +108,8 @@
 			var sheetName;
 			var sheet;
 			var new_code = "";
+			
 				//open file
-
-			function tagIt() {
-				autotag();
-				autotag();
-			}
 
 
 			function openSheet(file) {
@@ -135,6 +128,29 @@
 					if(sheetName[0] != "featureViewTable") {
 						alert("Ensure you are using a feature view table exported from Badger.")
 					}
+					else {
+							var range = XLSX.utils.decode_range(sheet['!ref']);
+							matched_items = [];
+
+							//search excel sheet for matches
+							for (let rowNum = range.s.r + 1; rowNum <= range.e.r; rowNum++) {
+									var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 3})]["v"];
+									var logo = sheet[XLSX.utils.encode_cell({r: rowNum, c: 4})]["v"];
+									var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
+									var special_notes = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
+									
+									if(!iname.match(logo)) {
+										iname = logo + " " + iname;
+									}
+
+									prices = prices.replaceAll("rice:","rice: $");
+									var tag = iname + ": " + prices;
+									matched_items.push(tag);
+
+							}
+							
+
+					}
 			  }, false);
 
 			  if (file) {
@@ -144,139 +160,147 @@
 			  }
 			}
 
-			function openHTML(file) {
-				console.log("opening html");
-			  //const [file] = document.getElementById("html_browser").files;
-			  const reader = new FileReader();
-
-			  reader.addEventListener("load", () => {
-			    // this will then display a text file
-			    html_text = reader.result;
-					dummyElement.contentWindow.document.write(html_text);
-			  }, false);
-
-			  if (file) {
-			    reader.readAsText(file);
-			  }
-			}
-
-			var dummyElement = document.getElementById("preview");
-
 			function autotag() {
-				dummyElement.src = "";
-
-				var images = [];
-				var tagIndex = 0;
-				var tagBox = document.getElementById("tagBox");
-				var last_item = "";
-				tagBox.value = "";
-
-				var range = XLSX.utils.decode_range(sheet['!ref']);
-				matched_items = [];
-
-				//search excel sheet for matches
-				for (let rowNum = range.s.r + 1; rowNum <= range.e.r; rowNum++) {
-						var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 3})];
-						var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
-						var special_notes = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
-
-						//fix prices if in special notes
-						if (prices == "" && special_notes.toLowerCase().includes("price")) {
-							console.log("special notes located");
-							prices = special_notes;
-						}
-
-						iname = iname["v"].replace(" (logo) "," ");
-						var complete_tag = iname + ": " + prices + ".";
-						complete_tag = complete_tag.replaceAll("rice:","rice: $");
-
-						for (var i = 0;i<item_names.length;++i)  {
-							if (last_item != iname) {
-								//match by size
-								if (iname.includes("in ") || iname.includes("\"")) {
-									item_names[i] = complete_tag;
-									matched_items.push(complete_tag);
-									last_item = iname;
-								}
-
-								//combined words? ex: water color, watercolor
-								if (iname.toLowerCase().includes(item_names[i].toLowerCase().replaceAll(" ","")) ||
-							item_names[i].toLowerCase().includes(iname.toLowerCase().replaceAll(" ",""))) {
-									item_names[i] = complete_tag;
-									matched_items.push(complete_tag);
-									last_item = iname;
-								}
-
-								if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
-									//match by containing name
-									item_names[i] = complete_tag;
-									matched_items.push(complete_tag);
-									last_item = iname;
-								}
-
-								//match by last word in description
-								var split_name = iname.toLowerCase().split(" ");
-								if (item_names[i].includes(split_name[split_name.length-1]) && last_item!=iname) {
-
-									item_names[i] = complete_tag;
-									matched_items.push(complete_tag);
-									last_item = iname;
-									console.log("split name located");
-								}
-							}
-						}
-
+				var tagList = document.getElementById("tagList");
+				tagList.value = "";
+				for(var i = 0;i<matched_items.length;++i) {
+					tagList.value += matched_items[i] + "\n";
 				}
-
-				//add matched items to textarea for copying
-				for (var i = 0;i < matched_items.length;++i) {
-						var prettyTag = matched_items[i];
-						document.getElementById("tagList").value += prettyTag + "\n";
-				}
-
-				//read image names
-				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
-				for (var i = 0;i < elements.length;++i) {
-
-						//check if item image
-						if (elements[i].width == "320" || elements[i].width == "640") {
-							elements[i].setAttribute("alt", alt_tags[tagIndex]);
-							var path = elements[i].src.toString().split("/");
-							var item_name = path[path.length-1].replace(".png","").replaceAll("_"," ").replace("320x220","").replace("640x100","").replace("640x200","").trim();
-							//	+ ": OUR PRICE " + ", theirs " + ".";
-							item_name = item_name.charAt(0).toUpperCase() + item_name.slice(1);
-
-							//remove duplicates
-							if (item_name != last_item && !item_name.includes("full")) {
-								item_names.push(item_name);
-								tagBox.value += item_name + "\n";
-							}
-
-							last_item = item_name;
-							++tagIndex;
-						}
-
-				}
-
-				//these are ordered, matched items are unordered
-				console.log(item_names);
-
-				//save new code
-				var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
-				for (var i = 0;i < elements.length;++i) {
-
-						//check if item image
-						if (elements[i].width == "320" || elements[i].width == "640") {
-							elements[i].setAttribute("alt", item_names[i]);
-						}
-				}
-
-				new_code = dummyElement.contentWindow.document.body.innerHTML;
 			}
+
+			// function openHTML(file) {
+			// 	console.log("opening html");
+			//   //const [file] = document.getElementById("html_browser").files;
+			//   const reader = new FileReader();
+
+			//   reader.addEventListener("load", () => {
+			//     // this will then display a text file
+			//     html_text = reader.result;
+			// 		dummyElement.contentWindow.document.write(html_text);
+			//   }, false);
+
+			//   if (file) {
+			//     reader.readAsText(file);
+			//   }
+			// }
+
+			// var dummyElement = document.getElementById("preview");
+
+			// function autotag() {
+			// 	dummyElement.src = "";
+
+			// 	var images = [];
+			// 	var tagIndex = 0;
+			// 	var tagBox = document.getElementById("tagBox");
+			// 	var last_item = "";
+			// 	tagBox.value = "";
+
+			// 	var range = XLSX.utils.decode_range(sheet['!ref']);
+			// 	matched_items = [];
+
+			// 	//search excel sheet for matches
+			// 	for (let rowNum = range.s.r + 1; rowNum <= range.e.r; rowNum++) {
+			// 			var iname = sheet[XLSX.utils.encode_cell({r: rowNum, c: 3})];
+			// 			var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
+			// 			var special_notes = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
+
+			// 			//fix prices if in special notes
+			// 			if (prices == "" && special_notes.toLowerCase().includes("price")) {
+			// 				console.log("special notes located");
+			// 				prices = special_notes;
+			// 			}
+
+			// 			iname = iname["v"].replace(" (logo) "," ");
+			// 			var complete_tag = iname + ": " + prices + ".";
+			// 			complete_tag = complete_tag.replaceAll("rice:","rice: $");
+
+			// 			for (var i = 0;i<item_names.length;++i)  {
+			// 				if (last_item != iname) {
+			// 					//match by size
+			// 					if (iname.includes("in ") || iname.includes("\"")) {
+			// 						item_names[i] = complete_tag;
+			// 						matched_items.push(complete_tag);
+			// 						last_item = iname;
+			// 					}
+
+			// 					//combined words? ex: water color, watercolor
+			// 					if (iname.toLowerCase().includes(item_names[i].toLowerCase().replaceAll(" ","")) ||
+			// 				item_names[i].toLowerCase().includes(iname.toLowerCase().replaceAll(" ",""))) {
+			// 						item_names[i] = complete_tag;
+			// 						matched_items.push(complete_tag);
+			// 						last_item = iname;
+			// 					}
+
+			// 					if (iname.toLowerCase().includes(item_names[i].toLowerCase())) {
+			// 						//match by containing name
+			// 						item_names[i] = complete_tag;
+			// 						matched_items.push(complete_tag);
+			// 						last_item = iname;
+			// 					}
+
+			// 					//match by last word in description
+			// 					var split_name = iname.toLowerCase().split(" ");
+			// 					if (item_names[i].includes(split_name[split_name.length-1]) && last_item!=iname) {
+
+			// 						item_names[i] = complete_tag;
+			// 						matched_items.push(complete_tag);
+			// 						last_item = iname;
+			// 						console.log("split name located");
+			// 					}
+			// 				}
+			// 			}
+
+			// 	}
+
+			// 	//add matched items to textarea for copying
+			// 	for (var i = 0;i < item_names.length;++i) {
+			// 			var prettyTag = item_names[i];
+			// 			document.getElementById("tagList").value += prettyTag + "\n";
+			// 	}
+
+			// 	//read image names
+			// 	var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
+			// 	for (var i = 0;i < elements.length;++i) {
+
+			// 			//check if item image
+			// 			if (elements[i].width == "320" || elements[i].width == "640") {
+			// 				elements[i].setAttribute("alt", alt_tags[tagIndex]);
+			// 				var path = elements[i].src.toString().split("/");
+			// 				var item_name = path[path.length-1].replace(".png","").replaceAll("_"," ").replace("320x220","").replace("640x100","").replace("640x200","").trim();
+			// 				//	+ ": OUR PRICE " + ", theirs " + ".";
+			// 				item_name = item_name.charAt(0).toUpperCase() + item_name.slice(1);
+
+			// 				//remove duplicates
+			// 				if (item_name != last_item && !item_name.includes("full")) {
+			// 					item_names.push(item_name);
+			// 					tagBox.value += item_name + "\n";
+			// 				}
+
+			// 				last_item = item_name;
+			// 				++tagIndex;
+			// 			}
+
+			// 	}
+
+			// 	//these are ordered, matched items are unordered
+			// 	console.log(item_names);
+
+			// 	//save new code
+			// 	var elements = dummyElement.contentWindow.document.getElementsByTagName("img");
+			// 	for (var i = 0;i < elements.length;++i) {
+
+			// 			//check if item image
+			// 			if (elements[i].width == "320" || elements[i].width == "640") {
+			// 				elements[i].setAttribute("alt", item_names[i]);
+			// 			}
+			// 	}
+
+			// 	new_code = dummyElement.contentWindow.document.body.innerHTML;
+			// }
 
 			function download() {
-        var blob = new Blob([new_code], { type: "text/plain;charset=utf-8" });
-        saveAs(blob, "test.html");
+        var blob = new Blob([tagList.value], { type: "text/plain;charset=utf-8" });
+        saveAs(blob, "tags.txt");
 			}
 		</script>
 
