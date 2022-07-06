@@ -108,9 +108,8 @@
 			var sheetName;
 			var sheet;
 			var new_code = "";
+			var percent_off = 0;
 			
-				//open file
-
 
 			function openSheet(file) {
 				//const [file] = document.getElementById("xls_browser").files;
@@ -138,7 +137,25 @@
 									var logo = sheet[XLSX.utils.encode_cell({r: rowNum, c: 4})]["v"];
 									var prices = sheet[XLSX.utils.encode_cell({r:rowNum,c:10})]["v"];
 									var special_notes = sheet[XLSX.utils.encode_cell({r:rowNum,c:11})]["v"];
+									var theirs = "";
 									
+									//apply discount
+									prices = prices.replaceAll("Our Price","OurPrice");
+									prices = prices.replaceAll("Their Price","TheirPrice");
+									var priceList = prices.split(" ");
+									for(var i =0;i<priceList.length;++i) { 
+										if(priceList[i].match("OurPrice")){
+										var number = Number(priceList[i].replace(/[^0-9\.]+/g,""));
+										console.log(number);
+										var discount = number * (1-(0.01*percent_off));
+										discount = discount.toFixed(2);
+										console.log(discount + " discounted");
+									}else if(priceList[i].match("TheirPrice")){
+										theirs = Number(priceList[i].replace(/[^0-9\.]+/g,""));
+									}}
+
+									prices = "Our Price:" + discount + ", theirs: $" + theirs;
+
 									if(!iname.match(logo)) {
 										iname = logo + " " + iname;
 									}
